@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    parameters {
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Docker Hub Username')
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
@@ -12,6 +15,8 @@ pipeline {
             steps {
                 script {
                     // Set appropriate ownership for npm cache directory
+                    sh 'sudo chown -R 1758:1758 "/.npm"'
+
                     properties([
                         parameters([
                             string(name: 'WARNTIME',
@@ -49,11 +54,12 @@ pipeline {
             }
         }
 
-        stage('clean env') {
+        stage('Clean workspace') {
             steps {
-                sh 'docker system prune -fa || true'
-            }
+               cleanWs()
+           }
         }
+
         stage('Test golang') {
             agent {
                 docker {
@@ -66,27 +72,31 @@ pipeline {
             }
         }
 
-        // Add similar stages for testing other components...
-
-        stage('SonarQube analysis') {
-            agent {
-                docker {
-                    image 'sonarsource/sonar-scanner-cli:4.8.0'
-                }
-            }
-            environment {
-                CI = 'true'
-                scannerHome = '/opt/sonar-scanner'
-            }
+        stage('Build SonarQube Scanner CLI Image') {
             steps {
-                withSonarQubeEnv('SonarScanner') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                script {
+                    dir("${WORKSPACE}") {
+                        sh "docker build -t ${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER} -f sonar.Dockerfile ."
+                    }
                 }
             }
         }
 
-        // Add similar stages for building other components.       
-         
+        stage('SonarQube Analysis') {
+            when {
+                expression { params.RUN_STAGES }
+            }
+            steps {
+                script {
+                    withSonarQubeEnv("SonarScanner") {
+                        docker.image("${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER}").inside {
+                            sh "sonar-scanner"
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     post {
