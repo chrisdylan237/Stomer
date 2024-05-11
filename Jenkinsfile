@@ -87,8 +87,7 @@ pipeline {
         stage('Build SonarQube Scanner CLI Image') {
             steps {
                 script {
-                        sh " sh "cd ${env.WORKSPACE}/stormer-project02/images/ "
-                    
+                    sh "cd ${env.WORKSPACE}/stormer-project02/images/"
                 }
             }
         }
