@@ -11,6 +11,9 @@ pipeline {
         stage('Setup parameters') {
             steps {
                 script {
+                    // Set appropriate ownership for npm cache directory
+                    sh 'sudo chown -R 1758:1758 "/.npm"'
+
                     properties([
                         parameters([
                             string(name: 'WARNTIME',
@@ -81,7 +84,7 @@ pipeline {
             }
         }
 
-        // Similar stages for testing other components...
+        // Add similar stages for testing other components...
 
         stage('SonarQube analysis') {
             agent {
@@ -100,10 +103,8 @@ pipeline {
             }
         }
 
-        // Similar stages for building other components.       
+        // Add similar stages for building other components.       
          
-         
-        
     }
 
     post {
