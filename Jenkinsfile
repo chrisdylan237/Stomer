@@ -12,8 +12,6 @@ pipeline {
             steps {
                 script {
                     // Set appropriate ownership for npm cache directory
-                    sh 'sudo chown -R 1758:1758 "/.npm"'
-
                     properties([
                         parameters([
                             string(name: 'WARNTIME',
@@ -56,22 +54,6 @@ pipeline {
                 sh 'docker system prune -fa || true'
             }
         }
-        
-        stage('Test maven-node') {
-            agent {
-                docker {
-                    image 'node'
-                }
-            }
-            steps {
-                sh '''
-                    cd $WORKSPACE/stormer-project02/src/checkout/
-                    npm install 
-                '''
-            }
-        }
-
-
         stage('Test golang') {
             agent {
                 docker {
