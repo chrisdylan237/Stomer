@@ -14,9 +14,7 @@ pipeline {
         stage('Setup parameters') {
             steps {
                 script {
-                    // Set appropriate ownership for npm cache directory
-                    sh 'sudo chown -R 1758:1758 "/.npm"'
-
+                    // Set appropriate ownership for npm cache director
                     properties([
                         parameters([
                             string(name: 'WARNTIME',
