@@ -45,6 +45,7 @@ pipeline {
                     passwordVariable: 'PASSWORD')]) {
                         sh "docker login -u ${USERNAME} -p ${PASSWORD}"
                         sh "ls -a"
+                        sh " pwd "
                     }
                 }
             }
