@@ -97,7 +97,11 @@ pipeline {
                 script {
                     withSonarQubeEnv("SonarScanner") {
                         docker.image("sonarsource/sonar-scanner-cli:4.8.0").inside {
-                            sh "sonar-scanner"
+                            sh """sonar-scanner \
+                                -Dsonar.projectKey=dylan-stomer \
+                                -Dsonar.sources=stormer-project02  \
+                                -Dsonar.projectName=dylan-stomer \
+                                -Dsonar.host.url=https://sonarqube.ektechsoftwaresolution.com/"""
                         }
                     }
                 }
