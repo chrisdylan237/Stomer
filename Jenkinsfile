@@ -1,14 +1,18 @@
 pipeline {
     agent any
+
     parameters {
         string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Git branch name')
+        booleanParam(name: 'RUN_STAGES', defaultValue: true, description: 'Whether to run stages or not')
     }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
         timeout(time: 60, unit: 'MINUTES')
         timestamps()
     }
+
     stages {
         stage('Clone Repository') {
             when {
@@ -22,7 +26,6 @@ pipeline {
             }
         }
 
-    stages {
         stage('Setup parameters') {
             steps {
                 script {
@@ -44,10 +47,13 @@ pipeline {
         }
 
         stage('warning') {
+            when {
+                expression { params.RUN_STAGES }
+            }
             steps {
                 script {
-                    notifyUpgrade(currentBuild.currentResult, "WARNING")
-                    sleep(time: env.WARNTIME.toInteger(), unit: 'MINUTES')
+                    notifyUpgrade(currentBuild.result, "WARNING")
+                    sleep(time: params.WARNTIME.toInteger(), unit: 'MINUTES')
                 }
             }
         }
@@ -60,7 +66,7 @@ pipeline {
                     passwordVariable: 'PASSWORD')]) {
                         sh "docker login -u ${USERNAME} -p ${PASSWORD}"
                         sh "ls -a"
-                        sh " pwd "
+                        sh "pwd"
                     }
                 }
             }
@@ -87,11 +93,10 @@ pipeline {
         stage('Build SonarQube Scanner CLI Image') {
             steps {
                 script {
-                    
-                        sh "docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} ."
-                    }
+                    sh "docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} ."
                 }
             }
+        }
 
         stage('SonarQube Analysis') {
             steps {
@@ -104,13 +109,12 @@ pipeline {
                 }
             }
         }
-
     }
 
     post {
         always {
             script {
-                notifyUpgrade(currentBuild.currentResult, "POST")
+                notifyUpgrade(currentBuild.result, "POST")
             }
         }
     }
@@ -124,7 +128,7 @@ def notifyUpgrade(String buildResult, String whereAt) {
     if (buildResult == "SUCCESS") {
         switch (whereAt) {
             case 'WARNING':
-                message = "Stormer: Upgrade starting in ${env.WARNTIME} minutes @ ${env.BUILD_URL} Application Stormer"
+                message = "Stormer: Upgrade starting in ${params.WARNTIME} minutes @ ${env.BUILD_URL} Application Stormer"
                 color = "#439FE0"
                 break
             case 'POST':
