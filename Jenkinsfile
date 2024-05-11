@@ -74,7 +74,7 @@ pipeline {
             steps {
                 script {
                     
-                        sh "docker build -t ${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER} -f sonar.Dockerfile ."
+                        sh "docker build -t ${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER} ."
                     }
                 }
             }
