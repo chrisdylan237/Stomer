@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    parameters {
-        string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Docker Hub Username')
-    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
@@ -74,7 +71,7 @@ pipeline {
             steps {
                 script {
                     
-                        sh "docker build -t ${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER} ."
+                        sh "docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} ."
                     }
                 }
             }
@@ -83,7 +80,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv("SonarScanner") {
-                        docker.image("${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER}").inside {
+                        docker.image("chrisdylan/sonar-stomer-cli:${BUILD_NUMBER}").inside {
                             sh "sonar-scanner"
                         }
                     }
