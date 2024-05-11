@@ -15,9 +15,6 @@ pipeline {
 
     stages {
         stage('Clone Repository') {
-            when {
-                expression { params.RUN_STAGES }
-            }
             steps {
                 script {
                     git branch: "${params.GIT_BRANCH}",
@@ -47,9 +44,6 @@ pipeline {
         }
 
         stage('warning') {
-            when {
-                expression { params.RUN_STAGES }
-            }
             steps {
                 script {
                     notifyUpgrade(currentBuild.result, "WARNING")
@@ -93,7 +87,7 @@ pipeline {
         stage('Build SonarQube Scanner CLI Image') {
             steps {
                 script {
-                    sh "docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} ."
+                    sh "docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} . "
                 }
             }
         }
