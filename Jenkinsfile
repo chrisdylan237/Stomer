@@ -73,17 +73,13 @@ pipeline {
         stage('Build SonarQube Scanner CLI Image') {
             steps {
                 script {
-                    dir("${WORKSPACE}") {
+                    
                         sh "docker build -t ${params.DOCKERHUB_USERNAME}/sonar-stomer-cli:${BUILD_NUMBER} -f sonar.Dockerfile ."
                     }
                 }
             }
-        }
 
         stage('SonarQube Analysis') {
-            when {
-                expression { params.RUN_STAGES }
-            }
             steps {
                 script {
                     withSonarQubeEnv("SonarScanner") {
