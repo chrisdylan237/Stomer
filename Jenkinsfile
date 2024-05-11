@@ -1,11 +1,26 @@
 pipeline {
     agent any
+    parameters {
+        string(name: 'GIT_BRANCH', defaultValue: 'master', description: 'Git branch name')
+    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
         timeout(time: 60, unit: 'MINUTES')
         timestamps()
     }
+    stages {
+        stage('Clone Repository') {
+            when {
+                expression { params.RUN_STAGES }
+            }
+            steps {
+                script {
+                    git branch: "${params.GIT_BRANCH}",
+                    url: 'https://github.com/chrisdylan237/Stomer.git'
+                }
+            }
+        }
 
     stages {
         stage('Setup parameters') {
