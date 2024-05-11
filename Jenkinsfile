@@ -87,8 +87,9 @@ pipeline {
         stage('Build SonarQube Scanner CLI Image') {
             steps {
                 script {
-                    sh "pwd" // Add this line for debugging
-                    sh " docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} . "
+                    dir("${WORKSPACE}/stomer-project02/images") {
+                        sh " docker build -t chrisdylan/sonar-stomer-cli:${BUILD_NUMBER} . "
+                    }
                 }
             }
         }
